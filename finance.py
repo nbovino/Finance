@@ -2,21 +2,31 @@ import yfinance as yf
 
 
 def get_ticker():
-    tic = input("Enter a stock symbol (type 0 to quit): ")
-    return tic
+    input_tic = input("Enter a stock symbol (type 0 to quit): ")
+    return input_tic
 
 
 def print_stock_info(ticker):
     # print(ticker.actions)
     # print(ticker.balancesheet)
-    print(ticker.cashflow)
+    print(yf.Ticker(ticker).cashflow)
 
 
 def main():
     tic = ""
+    tickers_list = []
     while tic != "0":
-        tic = get_ticker()
-        print_stock_info(yf.Ticker(tic))
+        new_ticker = get_ticker()
+        if new_ticker == "0":
+            print("DIDN'T GET THAT")
+            tic = "0"
+        else:
+            tickers_list.append(new_ticker)
+            print(tickers_list)
+    print(tickers_list)
+    for t in tickers_list:
+        print(t)
+        print_stock_info(t)
     return
 
 
