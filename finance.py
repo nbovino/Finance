@@ -1,9 +1,18 @@
 import yfinance as yf
 import pandas as pd
+pd.set_option('max_columns', None)
+
+
+def compare_more():
+    compare_other = input("Do you want to compare other companies (Y/N)? ")
+    if compare_other.lower() == 'y':
+        return True
+    else:
+        return False
 
 
 def get_ticker():
-    input_tic = input("Enter a stock symbol (type 0 to quit): ")
+    input_tic = input("Enter a stock symbol (type 0 to compare): ")
     return input_tic
 
 
@@ -11,16 +20,35 @@ def compare_tickers(tickers_list):
     tickers_data = {}
     # data = yf.download(' '.join(tickers_list), group_by='tickers')
     # print(data)
-    symbols = []
-    forwardPE = []
+
+    # Figures for ticker.balancesheet
+    total_assets, total_liab, cash, long_term_debt = [], [], [], []
+    # Figures under the ticker.info
+    dividend_rate, forward_eps, price_to_book, \
+        earnings_quarterly_growth, peg_ratio, symbols, forward_pe = [], [], [], [], [], [], []
     for ticker in tickers_list:
-        tf_ticker = yf.Ticker(ticker)
-        print(tf_ticker.balancesheet)
-        symbols.append(tf_ticker.info['symbol'])
-        forwardPE.append(tf_ticker.info['forwardPE'])
+        yf_ticker = yf.Ticker(ticker)
+        tic_bs = yf_ticker.balancesheet
+        tic_info = yf_ticker.info
+        # Append all desired data from balance sheet data
+        total_assets.append(tic_bs.iloc[:, 1]['Total Assets'] / 1000000000)
+        total_liab.append(tic_bs.iloc[:, 1]['Total Liab'] / 1000000000)
+        cash.append(tic_bs.iloc[:, 1]['Cash'] / 1000000000)
+        long_term_debt.append(tic_bs.iloc[:, 1]['Long Term Debt'] / 1000000000)
+        # Append all desired data from info data
+        dividend_rate.append(tic_info['dividendRate'])
+        forward_eps.append(tic_info['forwardEps'])
+        # last_fiscal_year_end.append(tic_info['lastFiscalYearEnd'])
+        price_to_book.append(tic_info['priceToBook'])
+        earnings_quarterly_growth.append(tic_info['earningsQuarterlyGrowth'])
+        peg_ratio.append(tic_info['pegRatio'])
+        symbols.append(tic_info['symbol'])
+        forward_pe.append(tic_info['forwardPE'])
     compare_dict = {
-        'Symbol': symbols,
-        'Forward PE': forwardPE
+        'Symbol': symbols, 'Forward PE': forward_pe, 'Total Assets (B)': total_assets, 'Total Liabilities (B)': total_liab,
+        'Cash (B)': cash, 'L/T Debt (B)': long_term_debt, 'Dividend Rate': dividend_rate, 'Forward EPS': forward_eps,
+        'Price to Book': price_to_book, 'Earnings 1/4 Growth': earnings_quarterly_growth,
+        'PEG Ratio': peg_ratio
     }
     print(pd.DataFrame(compare_dict))
     #     ticker_object = yf.Ticker(ticker)
@@ -46,18 +74,22 @@ def print_stock_info(ticker):
 
 
 def main():
-    tic = ""
-    tickers_list = []
-    while tic != "0":
-        new_ticker = get_ticker()
-        if new_ticker == "0":
-            print("calculating...")
-            tic = "0"
-        else:
-            tickers_list.append(new_ticker)
-            print(tickers_list)
-    print(tickers_list)
-    compare_tickers(tickers_list=tickers_list)
+    compare_new_tickers = True
+    while compare_new_tickers:
+        tic = ""
+        tickers_list = []
+        while tic != "0":
+            new_ticker = get_ticker()
+            if new_ticker == "0":
+                print("calculating...")
+                print(' | '.join(tickers_list))
+                tic = "0"
+            else:
+                tickers_list.append(new_ticker)
+                print("Current selected: " + " ".join(tickers_list))
+        compare_tickers(tickers_list=tickers_list)
+        compare_new_tickers = compare_more()
+
     # for t in tickers_list:
     #     print(t)
     #     print_stock_info(t)
