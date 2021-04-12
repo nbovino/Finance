@@ -16,6 +16,21 @@ def get_ticker():
     return input_tic
 
 
+# Compares list of tickers' financial information (Will do this at least, just prints it out right now)
+def compare_financials(tickers_list):
+    total_revenue = {}
+    for ticker in tickers_list:
+        yf_ticker = yf.Ticker(ticker)
+        total_revenue[yf_ticker] = []
+        for r in yf_ticker.financials:
+            total_revenue[yf_ticker].append(r.strftime("%Y") + ": " + str(yf_ticker.financials[r]['Total Revenue']/1000000000))
+    for t in total_revenue:
+        print(t.info['symbol'])
+        for y in total_revenue[t]:
+            print(y)
+
+
+# Compares list of tickers' info and balance sheet information
 def compare_tickers(tickers_list):
     tickers_data = {}
     # data = yf.download(' '.join(tickers_list), group_by='tickers')
@@ -87,7 +102,8 @@ def main():
             else:
                 tickers_list.append(new_ticker)
                 print("Current selected: " + " ".join(tickers_list))
-        compare_tickers(tickers_list=tickers_list)
+        # compare_tickers(tickers_list=tickers_list)
+        compare_financials(tickers_list=tickers_list)
         compare_new_tickers = compare_more()
 
     # for t in tickers_list:
