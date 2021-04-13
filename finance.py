@@ -21,9 +21,13 @@ def compare_financials(tickers_list):
     financials_data = {}
     for ticker in tickers_list:
         yf_ticker = yf.Ticker(ticker)
-        # For this company, find this financial data
-        financials_data[yf_ticker.info['symbol']] = yf_ticker.financials.T[['Total Revenue', 'Net Income',
+        data = yf_ticker.history()
+        last_quote = (data.tail(1)['Close'].iloc[0])
+        # For this company, find last quote and certain financial data
+        financials_data[yf_ticker.info['symbol']] = [last_quote,
+                                                     yf_ticker.financials.T[['Total Revenue', 'Net Income',
                                                                             'Gross Profit', 'Research Development']]
+                                                     ]
         # for r in yf_ticker.financials:
         #     total_revenue[yf_ticker].append(r.strftime("%Y") + ": " + str(yf_ticker.financials[r]['Total Revenue']/1000000000))
         #     total_revenue[yf_ticker].append(r.strftime("%Y") + ": " + str(yf_ticker.financials[r]['Net Income']/1000000000))
@@ -35,8 +39,8 @@ def compare_financials(tickers_list):
     #     for y in total_revenue[t]:
     #         print(y)
     for d in financials_data:
-        print("\n\n" + d)
-        print(financials_data[d].T.div(1000000000))
+        print("\n\n" + d + ": " + str(financials_data[d][0]))
+        print(financials_data[d][1].T.div(1000000000))
 
 
 # Compares list of tickers' info and balance sheet information
