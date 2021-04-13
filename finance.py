@@ -18,16 +18,25 @@ def get_ticker():
 
 # Compares list of tickers' financial information (Will do this at least, just prints it out right now)
 def compare_financials(tickers_list):
-    total_revenue = {}
+    financials_data = {}
     for ticker in tickers_list:
         yf_ticker = yf.Ticker(ticker)
-        total_revenue[yf_ticker] = []
-        for r in yf_ticker.financials:
-            total_revenue[yf_ticker].append(r.strftime("%Y") + ": " + str(yf_ticker.financials[r]['Total Revenue']/1000000000))
-    for t in total_revenue:
-        print(t.info['symbol'])
-        for y in total_revenue[t]:
-            print(y)
+        # For this company, find this financial data
+        financials_data[yf_ticker.info['symbol']] = yf_ticker.financials.T[['Total Revenue', 'Net Income',
+                                                                            'Gross Profit', 'Research Development']]
+        # for r in yf_ticker.financials:
+        #     total_revenue[yf_ticker].append(r.strftime("%Y") + ": " + str(yf_ticker.financials[r]['Total Revenue']/1000000000))
+        #     total_revenue[yf_ticker].append(r.strftime("%Y") + ": " + str(yf_ticker.financials[r]['Net Income']/1000000000))
+        #     total_revenue[yf_ticker].append(r.strftime("%Y") + ": " + str(yf_ticker.financials[r]['Gross Profit']/1000000000))
+    # df = pd.DataFrame(total_revenue)
+    # print(df)
+    # for t in total_revenue:
+    #     print(t.info['symbol'])
+    #     for y in total_revenue[t]:
+    #         print(y)
+    for d in financials_data:
+        print("\n\n" + d)
+        print(financials_data[d].T.div(1000000000))
 
 
 # Compares list of tickers' info and balance sheet information
@@ -96,8 +105,8 @@ def main():
         while tic != "0":
             new_ticker = get_ticker()
             if new_ticker == "0":
-                print("calculating...")
                 print(' | '.join(tickers_list))
+                print("calculating...")
                 tic = "0"
             else:
                 tickers_list.append(new_ticker)
